@@ -75,7 +75,8 @@ const PopupContainer: React.FC<PopupContainerProps> = ({ model, resolve }) => {
           label: (
             <ModelItem>
               <ModelNameRow>
-                <span>{m?.name}</span> <ModelTags model={m} />
+                <span>{m?.name}</span>
+                <ModelTags model={m} />
               </ModelNameRow>
               <PinIcon
                 onClick={(e) => {
@@ -114,33 +115,40 @@ const PopupContainer: React.FC<PopupContainerProps> = ({ model, resolve }) => {
     const pinnedItems = providers
       .flatMap((p) => p.models || [])
       .filter((m) => pinnedModels.includes(getModelUniqId(m)))
-      .map((m) => ({
-        key: getModelUniqId(m) + '_pinned',
-        label: (
-          <ModelItem>
-            <ModelNameRow>
-              <span>{m?.name}</span> <ModelTags model={m} />
-            </ModelNameRow>
-            <PinIcon
-              onClick={(e) => {
-                e.stopPropagation()
-                togglePin(getModelUniqId(m))
-              }}
-              isPinned={true}>
-              <PushpinOutlined />
-            </PinIcon>
-          </ModelItem>
-        ),
-        icon: (
-          <Avatar src={getModelLogo(m?.id || '')} size={24}>
-            {first(m?.name)}
-          </Avatar>
-        ),
-        onClick: () => {
-          resolve(m)
-          setOpen(false)
+      .map((m) => {
+        // 找到对应的provider
+        const provider = providers.find((p) => p.models?.some((model) => getModelUniqId(model) === getModelUniqId(m)))
+        return {
+          key: getModelUniqId(m) + '_pinned',
+          label: (
+            <ModelItem>
+              <ModelNameRow>
+                <span>
+                  {m?.name} | {provider?.isSystem ? t(`provider.${provider.id}`) : provider?.name}
+                </span>
+                <ModelTags model={m} />
+              </ModelNameRow>
+              <PinIcon
+                onClick={(e) => {
+                  e.stopPropagation()
+                  togglePin(getModelUniqId(m))
+                }}
+                isPinned={true}>
+                <PushpinOutlined />
+              </PinIcon>
+            </ModelItem>
+          ),
+          icon: (
+            <Avatar src={getModelLogo(m?.id || '')} size={24}>
+              {first(m?.name)}
+            </Avatar>
+          ),
+          onClick: () => {
+            resolve(m)
+            setOpen(false)
+          }
         }
-      }))
+      })
 
     if (pinnedItems.length > 0) {
       filteredItems.unshift({
