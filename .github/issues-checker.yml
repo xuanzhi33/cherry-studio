@@ -2,7 +2,7 @@
 
 default-mode:
   add:
-  remove: [issues]
+  # remove: [issues]
 
 labels:
   # Skip and Remove
