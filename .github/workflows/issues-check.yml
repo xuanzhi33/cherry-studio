@@ -1,0 +1,23 @@
+name: 'Issues Check'
+
+on:
+  issues:
+    types: [opened, edited]
+  issue_comment:
+    types: [created, edited]
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  issues-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: cherry-studio/issues-checker@v0.1.0
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          configuration-path: .github/issues-checker.yml
+          # not-before: today
+          not-before: 2025-02-24T00:00:00Z
+          include-title: 1
