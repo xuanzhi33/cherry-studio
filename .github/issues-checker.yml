@@ -1,0 +1,244 @@
+# 灵感来源：https://github.com/MaaAssistantArknights/MaaAssistantArknights/blob/dev/.github/issue-checker.yml
+
+default-mode:
+  add:
+  remove: [issues]
+
+labels:
+  # Skip and Remove
+  - name: skip all
+    content:
+    regexes: "[Ss]kip (?:[Aa]ll |)[Ll]abels?"
+  - name: remove all
+    content:
+    regexes: "[Rr]emove (?:[Aa]ll |)[Ll]abels?"
+  - name: skip module
+    content:
+    regexes: "[Ss]kip (?:[Mm]odule |)[Ll]abels?"
+  - name: remove module
+    content:
+    regexes: "[Rr]emove (?:[Mm]odule |)[Ll]abels?"
+  - name: skip client
+    content:
+    regexes: "[Ss]kip (?:[Cc]lient |)[Ll]abels?"
+  - name: remove client
+    content:
+    regexes: "[Rr]emove (?:[Cc]lient |)[Ll]abels?"
+  - name: skip chat
+    content:
+    regexes: "[Ss]kip (?:[Cc]hat |)[Ll]abels?"
+  - name: remove chat
+    content:
+    regexes: "[Rr]emove (?:[Cc]hat |)[Ll]abels?"
+  - name: skip drawing
+    content:
+    regexes: "[Ss]kip (?:[Dd]rawing |)[Ll]abels?"
+  - name: remove drawing
+    content:
+    regexes: "[Rr]emove (?:[Dd]rawing |)[Ll]abels?"
+  - name: skip translation
+    content:
+    regexes: "[Ss]kip (?:[Tt]ranslation |)[Ll]abels?"
+  - name: remove translation
+    content:
+    regexes: "[Rr]emove (?:[Tt]ranslation |)[Ll]abels?"
+  - name: skip kb
+    content:
+    regexes: "[Ss]kip (?:[Kk]b |)[Ll]abels?"
+  - name: remove kb
+    content:
+    regexes: "[Rr]emove (?:[Kk]b |)[Ll]abels?"
+  - name: skip agents
+    content:
+    regexes: "[Ss]kip (?:[Aa]gents |)[Ll]abels?"
+  - name: remove agents
+    content:
+    regexes: "[Rr]emove (?:[Aa]gents |)[Ll]abels?"
+  - name: skip others
+    content:
+    regexes: "[Ss]kip (?:[Oo]thers |)[Ll]abels?"
+  - name: remove others
+    content:
+    regexes: "[Rr]emove (?:[Oo]thers |)[Ll]abels?"
+  - name: skip linux
+    content:
+    regexes: "[Ss]kip (?:[Ll]inux |)[Ll]abels?"
+  - name: remove linux
+    content:
+    regexes: "[Rr]emove (?:[Ll]inux |)[Ll]abels?"
+  - name: skip windows
+    content:
+    regexes: "[Ss]kip (?:[Ww]indows |)[Ll]abels?"
+  - name: remove windows
+    content:
+    regexes: "[Rr]emove (?:[Ww]indows |)[Ll]abels?"
+  - name: skip macos
+    content:
+    regexes: "[Ss]kip (?:[Mm]acOS |)[Ll]abels?"
+  - name: remove macos
+    content:
+    regexes: "[Rr]emove (?:[Mm]acOS |)[Ll]abels?"
+
+
+  # Dev Team
+  - name: Dev team
+    mode:
+      add:[issues]
+    author_association:
+      - "CONTRIBUTOR"
+      - "MEMBER"
+
+  - name: Chat
+    content: "module: Chat"
+    regexes: "话题|[Tt]opic|导出|[Ee]xport|联网|[Oo]nline|Markdown|模型.*提问|model.*question|模型.*回复|model.*reply|配置.*模型|(?:config(?:uration)?).*model|网络.*搜索|network.*search"
+    skip-if:
+      - "skip all"
+      - "skip module"
+      - "skip chat"
+    remove-if:
+      - "remove all"
+      - "remove module"
+      - "remove chat"
+
+  - name: Drawing
+    content: "module: Drawing"
+    regexes: "绘图|[Dd]rawing"
+    skip-if:
+      - "skip all"
+      - "skip module"
+      - "skip drawing"
+    remove-if:
+      - "remove all"
+      - "remove module"
+      - "remove drawing"
+
+  - name: Translation
+    content: "module: Translation"
+    regexes: "翻译|译文|[Tt]ranslat(?:e|or|ion|ing)"
+    skip-if:
+      - "skip all"
+      - "skip module"
+      - "skip translation"
+    remove-if:
+      - "remove all"
+      - "remove module"
+      - "remove translation"
+
+  - name: KB
+    content: "module: KB"
+    regexes: "知识库|[Kk]nowledge(?:\\s*based)?"
+    skip-if:
+      - "skip all"
+      - "skip module"
+      - "skip kb"
+    remove-if:
+      - "remove all"
+      - "remove module"
+      - "remove kb"
+
+  - name: Agents
+    content: "module: Agents"
+    regexes: "智能体|(?:虚拟|智能)?助手|[Aa]gent(s)?|assistant(s)?"
+    skip-if:
+      - "skip all"
+      - "skip module"
+      - "skip agents"
+    remove-if:
+      - "remove all"
+      - "remove module"
+      - "remove agents"
+
+  - name: Others
+    content: "module: Others"
+    regexes: "css|js|上传|[Ww]ebdav|快捷助手|小程序｜[Mm]in[Aa]pp"
+    skip-if:
+      - "skip all"
+      - "skip module"
+      - "skip others"
+      - "Chat"
+      - "Drawing"
+      - "Translation"
+      - "KB"
+      - "Agents"
+    remove-if:
+      - "remove all"
+      - "remove module"
+      - "remove others"
+
+  - name: linux
+    content: "client:linux"
+    regexes: "[Ll]inux|[Uu]buntu|AppImage"
+    skip-if:
+      - "skip all"
+      - "skip client"
+      - "skip linux"
+    remove-if:
+      - "remove all"
+      - "remove client"
+      - "remove linux"
+
+  - name: windows
+    content: "client:windows"
+    regexes: "[Ww]indows|[Ww]in"
+    skip-if:
+      - "skip all"
+      - "skip client"
+      - "skip windows"
+    remove-if:
+      - "remove all"
+      - "remove client"
+      - "remove windows"
+
+  - name: macos
+    content: "client:macos"
+    regexes: "[Mm]acOS|[Mm]ac|[Mm]acbook|[Mm]acbook[Pp]ro|[Dd]mg"
+    skip-if:
+      - "skip all"
+      - "skip client"
+      - "skip macos"
+    remove-if:
+      - "remove all"
+      - "remove client"
+      - "remove macos"
+
+  # `fixed`
+  - name: fixed
+    regexes: "(?:(?:`v\\d+\\.\\d+\\.\\d+(?:-(?:alpha|beta|rc)\\.\\d+|\\.\\d+|)`|\
+      v\\d+\\.\\d+\\.\\d+(?:-(?:alpha|beta|rc)\\.\\d+|\\.\\d+|)\\s+)|\
+      \\[(?:`v\\d+\\.\\d+\\.\\d+(?:-(?:alpha|beta|rc)\\.\\d+|\\.\\d+|)`|\
+      v\\d+\\.\\d+\\.\\d+(?:-(?:alpha|beta|rc)\\.\\d+|\\.\\d+|))\\]\\(\\S*\\)|\
+      (?:https?://(?:[^/\\s]+/){3}commit/|)[0-9a-z]{8,40})\
+      \\s*fixed|[Ff]ixed (?:in|at|by)\\s*\
+      (?:(?:`v\\d+\\.\\d+\\.\\d+(?:-(?:alpha|beta|rc)\\.\\d+|\\.\\d+|)`|\\s+\
+      v\\d+\\.\\d+\\.\\d+(?:-(?:alpha|beta|rc)\\.\\d+|\\.\\d+|))|\
+      \\[(?:`v\\d+\\.\\d+\\.\\d+(?:-(?:alpha|beta|rc)\\.\\d+|\\.\\d+|)`|\
+      v\\d+\\.\\d+\\.\\d+(?:-(?:alpha|beta|rc)\\.\\d+|\\.\\d+|))\\]\\(\\S*\\)|\
+      (?:https?://(?:[^/\\s]+/){3}commit/|)[0-9a-z]{8,40})"
+    mode:
+      issue_comment: add
+
+  - name: ambiguous
+    # 不符合上面任何一个的分类的 issue
+    content: ambiguous
+    mode:
+      issues:
+      issue_comment: remove
+    skip-if:
+      - "skip all"
+      - "skip ambiguous"
+    remove-if:
+      - "remove all"
+      - "remove ambiguous"
+      - "fixed"
+      - "Chat"
+      - "Drawing"
+      - "Translation"
+      - "KB"
+      - "Agents"
+      - "Others"
+      - "linux"
+      - "windows"
+      - "macos"
+
+
+
