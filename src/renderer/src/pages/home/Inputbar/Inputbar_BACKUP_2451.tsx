@@ -581,6 +581,7 @@ const Inputbar: FC<Props> = ({ assistant: _assistant, setActiveTopic }) => {
     setMentionModels(mentionModels.filter((m) => m.id !== model.id))
   }
 
+<<<<<<< HEAD
   const toggelEnableMCP = (mcp: MCPServer) => {
     setEnabledMCPs((prev) => {
       const exists = prev.some((item) => item.name === mcp.name)
@@ -590,6 +591,10 @@ const Inputbar: FC<Props> = ({ assistant: _assistant, setActiveTopic }) => {
         return [...prev, mcp]
       }
     })
+=======
+  const handleRemoveKnowledgeBase = (knowledgeBase: KnowledgeBase) => {
+    handleKnowledgeBaseSelect(selectedKnowledgeBases.filter((base) => base.id !== knowledgeBase.id))
+>>>>>>> 785b3120 (feat: 🎸 show selected knowledge base)
   }
 
   const onEnableWebSearch = () => {

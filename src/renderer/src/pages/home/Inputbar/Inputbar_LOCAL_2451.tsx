@@ -48,7 +48,6 @@ import KnowledgeBaseButton from './KnowledgeBaseButton'
 import MCPToolsButton from './MCPToolsButton'
 import MentionModelsButton from './MentionModelsButton'
 import MentionModelsInput from './MentionModelsInput'
-import SelectedKnowledgeBaseInput from './SelectedKnowledgeBaseInput'
 import SendMessageButton from './SendMessageButton'
 import TokenCount from './TokenCount'
 interface Props {
@@ -92,7 +91,6 @@ const Inputbar: FC<Props> = ({ assistant: _assistant, setActiveTopic }) => {
   const [mentionModels, setMentionModels] = useState<Model[]>([])
   const [enabledMCPs, setEnabledMCPs] = useState<MCPServer[]>([])
   const [isMentionPopupOpen, setIsMentionPopupOpen] = useState(false)
-  const [isKnowledgeBasePopupOpen, setIsKnowledgeBasePopupOpen] = useState(false)
   const [isDragging, setIsDragging] = useState(false)
   const [textareaHeight, setTextareaHeight] = useState<number>()
   const startDragY = useRef<number>(0)
@@ -179,15 +177,21 @@ const Inputbar: FC<Props> = ({ assistant: _assistant, setActiveTopic }) => {
     }
   }
 
-  const knowledgeState = useAppSelector((state) => state.knowledge)
-
   const handleKeyDown = (event: React.KeyboardEvent<HTMLTextAreaElement>) => {
     const isEnterPressed = event.keyCode == 13
 
-    if (event.key === '#') {
-      console.info(knowledgeState)
-      console.info(selectedKnowledgeBases)
-      setIsKnowledgeBasePopupOpen(true)
+    if (event.key === '@') {
+      const textArea = textareaRef.current?.resizableTextArea?.textArea
+      if (textArea) {
+        const cursorPosition = textArea.selectionStart
+        const textBeforeCursor = text.substring(0, cursorPosition)
+        if (cursorPosition === 0 || textBeforeCursor.endsWith(' ')) {
+          setMentionFromKeyboard(true)
+          EventEmitter.emit(EVENT_NAMES.SHOW_MODEL_SELECTOR)
+          setIsMentionPopupOpen(true)
+          return
+        }
+      }
     }
 
     if (event.key === 'Escape' && isMentionPopupOpen) {
@@ -339,15 +343,9 @@ const Inputbar: FC<Props> = ({ assistant: _assistant, setActiveTopic }) => {
       const cursorPosition = textArea.selectionStart
       const textBeforeCursor = newText.substring(0, cursorPosition)
       const lastAtIndex = textBeforeCursor.lastIndexOf('@')
-      const lastHashIndex = textBeforeCursor.lastIndexOf('#')
 
       if (lastAtIndex === -1 || textBeforeCursor.slice(lastAtIndex + 1).includes(' ')) {
         setIsMentionPopupOpen(false)
-      } else {
-        setIsMentionPopupOpen(true)
-      }
-      if (lastHashIndex === -1 || textBeforeCursor.slice(lastHashIndex + 1).includes(' ')) {
-        setIsKnowledgeBasePopupOpen(false)
       }
     }
   }
@@ -642,10 +640,6 @@ const Inputbar: FC<Props> = ({ assistant: _assistant, setActiveTopic }) => {
           ref={containerRef}>
           <AttachmentPreview files={files} setFiles={setFiles} />
           <MentionModelsInput selectedModels={mentionModels} onRemoveModel={handleRemoveModel} />
-          <SelectedKnowledgeBaseInput
-            selectedKnowledgeBase={selectedKnowledgeBases}
-            onRemoveKnowledgeBase={handleRemoveKnowledgeBase}
-          />
           <Textarea
             value={text}
             onChange={onChange}

@@ -25,15 +25,15 @@ import { estimateTextTokens as estimateTxtTokens } from '@renderer/services/Toke
 import { translateText } from '@renderer/services/TranslateService'
 import WebSearchService from '@renderer/services/WebSearchService'
 import store, { useAppDispatch, useAppSelector } from '@renderer/store'
-import { sendMessage as _sendMessage } from '@renderer/store/messages'
 import { setGenerating, setSearching } from '@renderer/store/runtime'
-import { Assistant, FileType, KnowledgeBase, MCPServer, MCPServer, Message, Model, Topic } from '@renderer/types'
-import { classNames, delay, getFileExtension } from '@renderer/utils'
+import { Assistant, FileType, KnowledgeBase, Message, Model, Topic } from '@renderer/types'
+import { classNames, delay, getFileExtension, uuid } from '@renderer/utils'
 import { abortCompletion } from '@renderer/utils/abortController'
 import { getFilesFromDropEvent } from '@renderer/utils/input'
 import { documentExts, imageExts, textExts } from '@shared/config/constant'
 import { Button, Popconfirm, Tooltip } from 'antd'
 import TextArea, { TextAreaRef } from 'antd/es/input/TextArea'
+import dayjs from 'dayjs'
 import Logger from 'electron-log/renderer'
 import { debounce, isEmpty } from 'lodash'
 import React, { CSSProperties, FC, useCallback, useEffect, useMemo, useRef, useState } from 'react'
@@ -45,16 +45,15 @@ import NarrowLayout from '../Messages/NarrowLayout'
 import AttachmentButton from './AttachmentButton'
 import AttachmentPreview from './AttachmentPreview'
 import KnowledgeBaseButton from './KnowledgeBaseButton'
-import MCPToolsButton from './MCPToolsButton'
 import MentionModelsButton from './MentionModelsButton'
 import MentionModelsInput from './MentionModelsInput'
 import SelectedKnowledgeBaseInput from './SelectedKnowledgeBaseInput'
 import SendMessageButton from './SendMessageButton'
 import TokenCount from './TokenCount'
+
 interface Props {
   assistant: Assistant
   setActiveTopic: (topic: Topic) => void
-  topic: Topic
 }
 
 let _text = ''
@@ -90,7 +89,6 @@ const Inputbar: FC<Props> = ({ assistant: _assistant, setActiveTopic }) => {
   const [isTranslating, setIsTranslating] = useState(false)
   const [selectedKnowledgeBases, setSelectedKnowledgeBases] = useState<KnowledgeBase[]>([])
   const [mentionModels, setMentionModels] = useState<Model[]>([])
-  const [enabledMCPs, setEnabledMCPs] = useState<MCPServer[]>([])
   const [isMentionPopupOpen, setIsMentionPopupOpen] = useState(false)
   const [isKnowledgeBasePopupOpen, setIsKnowledgeBasePopupOpen] = useState(false)
   const [isDragging, setIsDragging] = useState(false)
@@ -139,28 +137,38 @@ const Inputbar: FC<Props> = ({ assistant: _assistant, setActiveTopic }) => {
       return
     }
 
-    try {
-      // Dispatch the sendMessage action with all options
-      const uploadedFiles = await FileManager.uploadFiles(files)
-      dispatch(
-        _sendMessage(text, assistant, assistant.topics[0], {
-          files: uploadedFiles,
-          knowledgeBaseIds: selectedKnowledgeBases?.map((base) => base.id),
-          mentionModels,
-          enabledMCPs
-        })
-      )
-
-      // Clear input
-      setText('')
-      setFiles([])
-      setTimeout(() => setText(''), 500)
-      setTimeout(() => resizeTextArea(), 0)
-      setExpend(false)
-    } catch (error) {
-      console.error('Failed to send message:', error)
+    const message: Message = {
+      id: uuid(),
+      role: 'user',
+      content: text,
+      assistantId: assistant.id,
+      topicId: assistant.topics[0].id || uuid(),
+      createdAt: dayjs().format('YYYY-MM-DD HH:mm:ss'),
+      type: 'text',
+      status: 'success'
     }
-  }, [inputEmpty, text, assistant, files, selectedKnowledgeBases, mentionModels, dispatch])
+
+    if (selectedKnowledgeBases) {
+      message.knowledgeBaseIds = selectedKnowledgeBases.map((base) => base.id)
+    }
+
+    if (files.length > 0) {
+      message.files = await FileManager.uploadFiles(files)
+    }
+
+    if (mentionModels.length > 0) {
+      message.mentions = mentionModels
+    }
+    currentMessageId.current = message.id
+    EventEmitter.emit(EVENT_NAMES.SEND_MESSAGE, message)
+
+    setText('')
+    setFiles([])
+    setTimeout(() => setText(''), 500)
+    setTimeout(() => resizeTextArea(), 0)
+
+    setExpend(false)
+  }, [inputEmpty, text, assistant.id, assistant.topics, selectedKnowledgeBases, files, mentionModels])
 
   const translate = async () => {
     if (isTranslating) {
@@ -581,15 +589,8 @@ const Inputbar: FC<Props> = ({ assistant: _assistant, setActiveTopic }) => {
     setMentionModels(mentionModels.filter((m) => m.id !== model.id))
   }
 
-  const toggelEnableMCP = (mcp: MCPServer) => {
-    setEnabledMCPs((prev) => {
-      const exists = prev.some((item) => item.name === mcp.name)
-      if (exists) {
-        return prev.filter((item) => item.name !== mcp.name)
-      } else {
-        return [...prev, mcp]
-      }
-    })
+  const handleRemoveKnowledgeBase = (knowledgeBase: KnowledgeBase) => {
+    handleKnowledgeBaseSelect(selectedKnowledgeBases.filter((base) => base.id !== knowledgeBase.id))
   }
 
   const onEnableWebSearch = () => {
@@ -691,7 +692,6 @@ const Inputbar: FC<Props> = ({ assistant: _assistant, setActiveTopic }) => {
                 onMentionModel={(model) => onMentionModel(model, mentionFromKeyboard)}
                 ToolbarButton={ToolbarButton}
               />
-              <MCPToolsButton enabledMCPs={enabledMCPs} onEnableMCP={toggelEnableMCP} ToolbarButton={ToolbarButton} />
               <Tooltip placement="top" title={t('chat.input.web_search')} arrow>
                 <ToolbarButton type="text" onClick={onEnableWebSearch}>
                   <GlobalOutlined
