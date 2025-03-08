@@ -183,8 +183,9 @@ const Inputbar: FC<Props> = ({ assistant: _assistant, setActiveTopic }) => {
   const handleKeyDown = (event: React.KeyboardEvent<HTMLTextAreaElement>) => {
     const isEnterPressed = event.keyCode == 13
 
-    if (event.key === 'Escape' && isMentionPopupOpen) {
-      setIsMentionPopupOpen(false)
+    if (event.key === 'Escape') {
+      isMentionPopupOpen && setIsMentionPopupOpen(false)
+      isKnowledgePopupOpen && setIsKnowledgePopupOpen(false)
       return
     }
 
@@ -910,7 +911,7 @@ const KnowledgePopupContainer = styled.div`
   position: absolute;
   bottom: 100%;
   left: 0;
-  width: 100%;
+  width: 20%;
   z-index: 1000;
   background-color: var(--color-background-opacity);
   border-radius: 10px;
