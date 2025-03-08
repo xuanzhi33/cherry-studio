@@ -661,6 +661,7 @@ const Inputbar: FC<Props> = ({ assistant: _assistant, setActiveTopic }) => {
                     textareaRef.current?.focus()
                   }, 0)
                 }}
+                onClose={() => setIsKnowledgePopupOpen(false)}
               />
             </KnowledgePopupContainer>
           )}

@@ -9,10 +9,37 @@ const { Title } = Typography
 
 const SelectKnowledgePopup: FC<{
   selectKnowledgeBase: (knowledgeBase: KnowledgeBase) => void
-}> = ({ selectKnowledgeBase }) => {
+  onClose: () => void
+}> = ({ selectKnowledgeBase, onClose }) => {
   const knowledgeState = useAppSelector((state) => state.knowledge)
   const [searchText, setSearchText] = useState('')
   const [filteredBases, setFilteredBases] = useState<KnowledgeBase[]>([])
+  const [selectedIndex, setSelectedIndex] = useState(0)
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        onClose()
+      }
+
+      if (['ArrowDown', 'ArrowUp'].includes(e.key)) {
+        e.preventDefault()
+        const direction = e.key === 'ArrowDown' ? 1 : -1
+        const newIndex = selectedIndex + direction
+        if (newIndex >= 0 && newIndex < filteredBases.length) {
+          setSelectedIndex(newIndex)
+        }
+      }
+
+      if (e.key === 'Enter' && filteredBases[selectedIndex]) {
+        selectKnowledgeBase(filteredBases[selectedIndex])
+        onClose()
+      }
+    }
+
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [selectedIndex, filteredBases, onClose, selectKnowledgeBase])
 
   useEffect(() => {
     if (searchText) {
@@ -47,8 +74,8 @@ const SelectKnowledgePopup: FC<{
           <List
             itemLayout="horizontal"
             dataSource={filteredBases}
-            renderItem={(base) => (
-              <KnowledgeItem onClick={() => selectKnowledgeBase(base)}>
+            renderItem={(base, index) => (
+              <KnowledgeItem $selected={index === selectedIndex} onClick={() => selectKnowledgeBase(base)}>
                 <KnowledgeAvatar>
                   <DatabaseOutlined />
                 </KnowledgeAvatar>
@@ -124,12 +151,13 @@ const ListContainer = styled.div`
   }
 `
 
-const KnowledgeItem = styled.div`
+const KnowledgeItem = styled.div<{ $selected?: boolean }>`
   display: flex;
   align-items: center;
   padding: 10px 16px;
   cursor: pointer;
   transition: background-color 0.2s;
+  background-color: ${(props) => (props.$selected ? 'var(--color-background-soft)' : 'transparent')};
 
   &:hover {
     background-color: var(--color-background-soft);
