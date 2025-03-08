@@ -331,19 +331,20 @@ const Inputbar: FC<Props> = ({ assistant: _assistant, setActiveTopic }) => {
     if (textArea) {
       const cursorPosition = textArea.selectionStart
       const textBeforeCursor = newText.substring(0, cursorPosition)
-      const lastAtIndex = textBeforeCursor.lastIndexOf('@')
       const lastHashIndex = textBeforeCursor.lastIndexOf('#')
       // 处理@符号
+      const lastAtIndex = textBeforeCursor.lastIndexOf('@')
       if (lastAtIndex === -1 || textBeforeCursor.slice(lastAtIndex + 1).includes(' ')) {
         setIsMentionPopupOpen(false)
-      } else {
-        setIsMentionPopupOpen(true)
       }
       // 处理#符号
-      if (lastHashIndex === -1 || textBeforeCursor.slice(lastHashIndex + 1).includes(' ')) {
-        setIsKnowledgePopupOpen(false)
-      } else {
+      if (
+        (lastHashIndex !== -1 && textBeforeCursor.length === 1) ||
+        (textBeforeCursor.endsWith(' #') && !isKnowledgePopupOpen)
+      ) {
         setIsKnowledgePopupOpen(true)
+      } else {
+        setIsKnowledgePopupOpen(false)
       }
     }
   }
@@ -661,7 +662,10 @@ const Inputbar: FC<Props> = ({ assistant: _assistant, setActiveTopic }) => {
                     textareaRef.current?.focus()
                   }, 0)
                 }}
-                onClose={() => setIsKnowledgePopupOpen(false)}
+                onClose={() => {
+                  setIsKnowledgePopupOpen(false)
+                  textareaRef.current?.focus()
+                }}
               />
             </KnowledgePopupContainer>
           )}
@@ -917,7 +921,7 @@ const KnowledgePopupContainer = styled.div`
   background-color: var(--color-background-opacity);
   border-radius: 10px;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-  max-height: 300px;
+  max-height: 320px;
   overflow-y: auto;
   margin-bottom: 5px;
 `
