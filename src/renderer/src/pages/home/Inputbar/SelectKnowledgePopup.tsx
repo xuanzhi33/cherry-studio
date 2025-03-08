@@ -48,10 +48,16 @@ const SelectKnowledgePopup: FC<{
   useEffect(() => {
     if (searchText) {
       setFilteredBases(
-        knowledgeState.bases.filter((base) => base.name.toLowerCase().includes(searchText.toLowerCase()))
+        knowledgeState.bases.filter(
+          (base) =>
+            !selectedKnowledgeBase.some((selected) => selected.id === base.id) &&
+            base.name.toLowerCase().includes(searchText.toLowerCase())
+        )
       )
     } else {
-      setFilteredBases(knowledgeState.bases)
+      setFilteredBases(
+        knowledgeState.bases.filter((base) => !selectedKnowledgeBase.some((selected) => selected.id === base.id))
+      )
     }
   }, [searchText, knowledgeState.bases])
 
