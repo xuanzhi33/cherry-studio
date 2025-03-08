@@ -91,7 +91,7 @@ const SelectKnowledgePopup: FC<{
                 </KnowledgeAvatar>
                 <KnowledgeInfo>
                   <KnowledgeName>{base.name}</KnowledgeName>
-                  <KnowledgeDescription>{base.description || `${base.items?.length || 0} items`}</KnowledgeDescription>
+                  {/* <KnowledgeDescription>{base.description || `${base.items?.length || 0} items`}</KnowledgeDescription> */}
                 </KnowledgeInfo>
               </KnowledgeItem>
             )}
