@@ -3,18 +3,21 @@ import { useAppSelector } from '@renderer/store'
 import { KnowledgeBase } from '@renderer/types'
 import { Empty, Input, List, Typography } from 'antd'
 import { FC, useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import styled from 'styled-components'
 
 const { Title } = Typography
 
 const SelectKnowledgePopup: FC<{
   selectKnowledgeBase: (knowledgeBase: KnowledgeBase) => void
+  selectedKnowledgeBase: KnowledgeBase[]
   onClose: () => void
-}> = ({ selectKnowledgeBase, onClose }) => {
+}> = ({ selectKnowledgeBase, onClose, selectedKnowledgeBase }) => {
   const knowledgeState = useAppSelector((state) => state.knowledge)
   const [searchText, setSearchText] = useState('')
   const [filteredBases, setFilteredBases] = useState<KnowledgeBase[]>([])
   const [selectedIndex, setSelectedIndex] = useState(0)
+  const { t } = useTranslation()
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -32,6 +35,7 @@ const SelectKnowledgePopup: FC<{
       }
 
       if (e.key === 'Enter' && filteredBases[selectedIndex]) {
+        e.preventDefault()
         selectKnowledgeBase(filteredBases[selectedIndex])
         onClose()
       }
@@ -54,7 +58,7 @@ const SelectKnowledgePopup: FC<{
   return (
     <Container>
       <Header>
-        <Title level={5}>Select Knowledge Base</Title>
+        <Title level={5}>{t('agents.add.knowledge_base.placeholder')}</Title>
         <SearchInput
           placeholder="Search knowledge bases..."
           prefix={<DatabaseOutlined style={{ color: 'var(--color-text-3)' }} />}
