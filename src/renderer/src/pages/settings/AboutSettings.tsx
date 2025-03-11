@@ -147,7 +147,7 @@ const AboutSettings: FC = () => {
         <SettingDivider />
         <SettingRow>
           <SettingRowTitle>{t('settings.general.manually_check_update.title')}</SettingRowTitle>
-          <Switch value={manualUpdateCheck} onChange={(v) => dispatch(setManualUpdateCheck(v))} />
+          <Switch value={!manualUpdateCheck} onChange={(v) => dispatch(setManualUpdateCheck(!v))} />
         </SettingRow>
       </SettingGroup>
       {hasNewVersion && update.info && (
